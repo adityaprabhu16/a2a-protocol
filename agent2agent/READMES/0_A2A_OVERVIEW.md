@@ -29,4 +29,3 @@ Example of Full Flow: Weather Agent
  - Next, the client agent will send the weather agent the message ("Get weather for Miami Florida"), which goes to the server (red), then goes to the weather agent executor (green) (which has a method called execute, which calls the proper function to run our weather agent).
  - The weather agent will think and then send back another message back to the client agent.
  - The client agent will then receive the information, format it, and spit the result back to the client.
-

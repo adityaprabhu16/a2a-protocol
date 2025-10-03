@@ -39,12 +39,15 @@ async def main() -> None:
         except Exception as e:
             print(f"Error fetching public agent card: {e}")
             raise RuntimeError("Failed to fetch public agent card")
-
+        
+        #Create A2AClient and pass in the agent cards it has available (allowing the agent to know what agents we can communicate with).
         client = A2AClient(
             httpx_client=httpx_client, agent_card=final_agent_card_to_use
         )
         print("A2AClient initialized")
 
+        #Create a message payload and send it to the agent. REMEMBER: this is standardized
+        #We have a role, messageId, parts (which is the query), taskId, and contextId.
         message_payload = Message(
             role=Role.user,
             messageId=str(uuid.uuid4()),
@@ -57,7 +60,7 @@ async def main() -> None:
             ),
         )
         print("Sending message")
-
+        #A2AClient sends a message that it has our request, and we'll wait until we get a response back from our Greeting Agent.
         response = await client.send_message(request)
         print("Response:")
         print(response.model_dump_json(indent=2))
