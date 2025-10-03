@@ -20,6 +20,7 @@ from agent import SchedulingAgent
 from agent_executor import SchedulingAgentExecutor
 from dotenv import load_dotenv
 
+# Very similar format to Karley's Agent server.
 load_dotenv()
 
 logging.basicConfig(level=logging.INFO)

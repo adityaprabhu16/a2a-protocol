@@ -14,11 +14,12 @@ from agent import SchedulingAgent
 
 class SchedulingAgentExecutor(AgentExecutor):
     """AgentExecutor for the scheduling agent."""
-
+    #Initialize our scheduling agent we defined in agent.py using CrewAI.
     def __init__(self):
         """Initializes the SchedulingAgentExecutor."""
         self.agent = SchedulingAgent()
 
+    # Like usual, we'll implement the execute function which will take in the request context and event queue, and be the entry point for the agent to answer a scheduling question.
     async def execute(
         self,
         context: RequestContext,
@@ -40,6 +41,7 @@ class SchedulingAgentExecutor(AgentExecutor):
 
         query = context.get_user_input()
         try:
+            #We'll invoke the agent to answer the scheduling question.
             result = self.agent.invoke(query)
             print(f"Final Result ===> {result}")
         except Exception as e:
@@ -47,8 +49,9 @@ class SchedulingAgentExecutor(AgentExecutor):
             raise ServerError(error=InternalError()) from e
 
         parts = [Part(root=TextPart(text=result))]
-
+        #Once we have the response, we'll add the artifact to the task updater. 
         await updater.add_artifact(parts)
+        #Mark the task as complete. This signals to the host agent that the task is done, and it can now begin to access the result (parts) and artifacts.
         await updater.complete()
 
     async def cancel(self, context: RequestContext, event_queue: EventQueue) -> None:

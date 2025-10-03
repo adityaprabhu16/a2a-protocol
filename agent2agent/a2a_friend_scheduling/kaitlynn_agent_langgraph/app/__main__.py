@@ -16,6 +16,10 @@ from app.agent import KaitlynAgent
 from app.agent_executor import KaitlynAgentExecutor
 from dotenv import load_dotenv
 
+#Server that will be hosting Kaitlyn's Agent.
+#Contains the request_handler, which will be what will handle the request from the host agent.
+#Contains the agent_card, which will be what will allow the host agent to know what Kaitlyn's Agent can do.
+#Contains the agent_executor, which will be what will bridge the gap between our agent's invoke / kickoff / etc. that actually triggers the agent (the way we trigger the agent would differ between frameworks), and is a crucial standardization step in A2A.
 load_dotenv()
 
 logging.basicConfig(level=logging.INFO)
@@ -54,6 +58,8 @@ def main():
         )
 
         httpx_client = httpx.AsyncClient()
+        # In this request handler, we will be including our push notifier, which will be what will allow the host agent to know that Kaitlyn's Agent is ready to receive a request.
+        # That is, we're sending the notification to the host agent from the server instead of the host agent reaching out to the server.
         request_handler = DefaultRequestHandler(
             agent_executor=KaitlynAgentExecutor(),
             task_store=InMemoryTaskStore(),

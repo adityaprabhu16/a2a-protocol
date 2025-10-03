@@ -128,14 +128,16 @@ class KaitlynAgent:
             prompt=self.SYSTEM_INSTRUCTION,
             response_format=ResponseFormat,
         )
-
+    # We build the prompt that will be used to answer the scheduling question.
     def invoke(self, query, context_id):
         config: RunnableConfig = {"configurable": {"thread_id": context_id}}
         today_str = f"Today's date is {date.today().strftime('%Y-%m-%d')}."
         augmented_query = f"{today_str}\n\nUser query: {query}"
         self.graph.invoke({"messages": [("user", augmented_query)]}, config)
+        #Helper function that traverses the graph, obtains the current state, and returns the response.
         return self.get_agent_response(config)
 
+    # This method provides the option to stream the response back to the client.
     async def stream(self, query, context_id) -> AsyncIterable[dict[str, Any]]:
         today_str = f"Today's date is {date.today().strftime('%Y-%m-%d')}."
         augmented_query = f"{today_str}\n\nUser query: {query}"

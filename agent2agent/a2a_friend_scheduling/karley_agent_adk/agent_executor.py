@@ -37,7 +37,7 @@ class KarleyAgentExecutor(AgentExecutor):
         return self.runner.run_async(
             session_id=session_id, user_id="karley_agent", new_message=new_message
         )
-
+    # Whenever a request comes in (e.g. "Karley, when are you free to play pickleball?"), this function will be invoked.
     async def _process_request(
         self,
         new_message: types.Content,
@@ -53,7 +53,10 @@ class KarleyAgentExecutor(AgentExecutor):
                     event.content.parts if event.content and event.content.parts else []
                 )
                 logger.debug("Yielding final response: %s", parts)
+                #Once we have the response, we'll add the artifact to the task updater. 
+                #Remember, the artifact gives us a peek inside of the agent's thought process.
                 task_updater.add_artifact(parts)
+                #Mark the task as complete. This signals to the host agent that the task is done, and it can now begin to access the result (parts) and artifacts.
                 task_updater.complete()
                 break
             if not event.get_function_calls():
@@ -85,6 +88,7 @@ class KarleyAgentExecutor(AgentExecutor):
         if not context.current_task:
             updater.submit()
         updater.start_work()
+        # We'll wait for the request to process (including the A2A to GenAI and GenAI to A2A conversion)
         await self._process_request(
             types.UserContent(
                 parts=convert_a2a_parts_to_genai(context.message.parts),
@@ -95,7 +99,7 @@ class KarleyAgentExecutor(AgentExecutor):
 
     async def cancel(self, context: RequestContext, event_queue: EventQueue):
         raise ServerError(error=UnsupportedOperationError())
-
+    # This is a function that will create a session if it doesn't exist, and return the session if it does.
     async def _upsert_session(self, session_id: str):
         session = await self.runner.session_service.get_session(
             app_name=self.runner.app_name, user_id="karley_agent", session_id=session_id
@@ -110,12 +114,12 @@ class KarleyAgentExecutor(AgentExecutor):
             raise RuntimeError(f"Failed to get or create session: {session_id}")
         return session
 
-
+# This is a function that will convert a list of A2A Part types into a list of Google Gen AI Part types.
 def convert_a2a_parts_to_genai(parts: list[Part]) -> list[types.Part]:
     """Convert a list of A2A Part types into a list of Google Gen AI Part types."""
     return [convert_a2a_part_to_genai(part) for part in parts]
 
-
+# This is a function that will convert a single A2A Part type into a Google Gen AI Part type when we are planning to return the response back to the client.
 def convert_a2a_part_to_genai(part: Part) -> types.Part:
     """Convert a single A2A Part type into a Google Gen AI Part type."""
     root = part.root

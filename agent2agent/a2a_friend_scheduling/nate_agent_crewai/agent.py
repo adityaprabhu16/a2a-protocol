@@ -114,6 +114,7 @@ class SchedulingAgent:
             llm=self.llm,
         )
 
+    # This is the entry point for the agent to answer a scheduling question.
     def invoke(self, question: str) -> str:
         """Kicks off the crew to answer a scheduling question."""
         task_description = (
@@ -126,7 +127,8 @@ class SchedulingAgent:
             expected_output="A polite and concise answer to the user's question about my availability, based on the calendar tool's output.",
             agent=self.scheduling_assistant,
         )
-
+        # We'll create a crew to answer the scheduling question.
+        #We'll pass in the agent tools under tasks, which will be what will allow the agent to use the tool.
         crew = Crew(
             agents=[self.scheduling_assistant],
             tasks=[check_availability_task],
