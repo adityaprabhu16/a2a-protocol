@@ -62,6 +62,8 @@ uv run --active adk web
 
 Once all agents are running, the host agent will begin the scheduling process. You can view the interaction in the terminal output of the `host_agent`.
 
+We run adk web so we can see the terminal output of the host agent and can take actions based on it. 
+
 ## References
 - https://github.com/google/a2a-python
 - https://codelabs.developers.google.com/intro-a2a-purchasing-concierge#1
