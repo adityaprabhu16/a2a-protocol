@@ -69,23 +69,31 @@ class HostAgent:
                     print(f"ERROR: Failed to get agent card from {address}: {e}")
                 except Exception as e:
                     print(f"ERROR: Failed to initialize connection for {address}: {e}")
-
+        #We're storing our agent cards in a list of dictionaries, with the name and description of the agent.
         agent_info = [
             json.dumps({"name": card.name, "description": card.description})
             for card in self.cards.values()
         ]
         print("agent_info:", agent_info)
         self.agents = "\n".join(agent_info) if agent_info else "No friends found"
-
+    
+    #Workaround that does the async stuff inside a sync function.
+    '''
+    Essentially, we're creating an instance of the HostAgent class, BUT before we create the instance, 
+    we need to call the async initialize component. ADK Web does not support async. Does the asynchronous work, and 
+    then we return the instance. 
+    '''
     @classmethod
     async def create(
         cls,
         remote_agent_addresses: List[str],
     ):
         instance = cls()
+        #
         await instance._async_init_components(remote_agent_addresses)
         return instance
 
+    # We use the name of the agent, and in the prompt we'll include self.agents which we initialized with our agent cards earlier.
     def create_agent(self) -> Agent:
         return Agent(
             model="gemini-2.5-flash",
@@ -169,6 +177,7 @@ class HostAgent:
                     "updates": "The host agent is thinking...",
                 }
 
+    # Once we know that an agent exists, we can pull out that agent connection, and create that remote connection
     async def send_message(self, agent_name: str, task: str, tool_context: ToolContext):
         """Sends a task to a remote friend agent."""
         if agent_name not in self.remote_agent_connections:
@@ -184,6 +193,7 @@ class HostAgent:
         context_id = state.get("context_id", str(uuid.uuid4()))
         message_id = str(uuid.uuid4())
 
+        #Follow standard A2A protocols here where we build our message
         payload = {
             "message": {
                 "role": "user",
@@ -194,12 +204,15 @@ class HostAgent:
             },
         }
 
+        #Send the message to the remote agent.
         message_request = SendMessageRequest(
             id=message_id, params=MessageSendParams.model_validate(payload)
         )
+        # wait for the remote agent to respond.
         send_response: SendMessageResponse = await client.send_message(message_request)
+        #print the response to see what the remote agent responded with.
         print("send_response", send_response)
-
+        #Check if the response is a success or a task. 
         if not isinstance(
             send_response.root, SendMessageSuccessResponse
         ) or not isinstance(send_response.root.result, Task):
@@ -209,6 +222,7 @@ class HostAgent:
         response_content = send_response.root.model_dump_json(exclude_none=True)
         json_content = json.loads(response_content)
 
+        # Check if the response has artifacts. 
         resp = []
         if json_content.get("result", {}).get("artifacts"):
             for artifact in json_content["result"]["artifacts"]:
