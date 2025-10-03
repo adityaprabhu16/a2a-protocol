@@ -25,3 +25,25 @@ Files Rundown:
     - Essentially, how we will communicate with the server. All the client does is fetch the AgentCard and then start sending messages.
     - First step: we need to first make a request and resolve what capabilities our server has. 
     - We'll have an async A2ACardResolver
+
+- Flow:
+     - in one window, run the server
+     - in another terminal window, run the test_client
+
+- Understanding the flow:
+ -  INFO:     127.0.0.1:51842 - "GET /.well-known/agent.json HTTP/1.1" 200 OK (LOOKING up the AgentCard)
+ - A2AClient initialized (after AgentCard is looked up)
+ - We'll then send our message we curated for the AgentCard we looked up, and will receive a response.
+ - Rummage through the response JSON, and you'll indeed see under "parts", we see the response from our greeting agent.
+
+"parts": [
+    {
+    "kind": "text",
+    "metadata": null,
+    "text": "Hello YouTube! Make sure to like and subscribe!"
+    }
+],
+
+In summary: 
+ - A2A made it very easy for us to standardize communication between clients and servers.
+ - Made the entire process super seamless and standardized everything.

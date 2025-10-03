@@ -13,6 +13,9 @@ Before running the application locally, ensure you have the following installed:
 1. **uv:** The Python package management tool used in this project. Follow the installation guide: [https://docs.astral.sh/uv/getting-started/installation/](https://docs.astral.sh/uv/getting-started/installation/)
 2. **python 3.13** Python 3.13 is required to run a2a-sdk 
 
+To get this working, I am using a Mac and simply did:
+ - brew install uv
+
 ## 1. Install dependencies
 
 This will create a virtual environment in the `.venv` directory and install the required packages.
@@ -23,7 +26,7 @@ source .venv/bin/activate
 ```
 
 ## 2. Run the Agent
-Open a terminal and run the server with the dummy agent:
+Open a terminal and run the SERVER with the dummy agent:
 
 ```bash
 uv run .
